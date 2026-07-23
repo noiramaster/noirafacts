@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noira Pipeline Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        noir: { 900: '#0a0a0a', 800: '#141414', 700: '#1e1e1e', 600: '#2a2a2a', 500: '#3a3a3a', 400: '#6b7280', 300: '#9ca3af', 200: '#d1d5db', 100: '#f3f4f6' },
+        neon: { blue: '#00f0ff', purple: '#b300ff', green: '#00ff88' }
+      }
+    }
+  }
+}
+</script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0a; color: #f3f4f6; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+.glow-blue { box-shadow: 0 0 20px rgba(0, 240, 255, 0.15); }
+.glow-purple { box-shadow: 0 0 20px rgba(179, 0, 255, 0.15); }
+.card { background: #141414; border: 1px solid #2a2a2a; border-radius: 12px; padding: 1.5rem; }
+.card:hover { border-color: #3a3a3a; }
+.stat-value { font-size: 2rem; font-weight: 700; }
+.badge { display: inline-flex; align-items: center; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; }
+.badge-success { background: rgba(0, 255, 136, 0.15); color: #00ff88; }
+.badge-error { background: rgba(255, 71, 71, 0.15); color: #ff4747; }
+.badge-pending { background: rgba(255, 193, 7, 0.15); color: #ffc107; }
+.badge-queued { background: rgba(0, 240, 255, 0.15); color: #00f0ff; }
+.loading { display: inline-block; width: 1.5rem; height: 1.5rem; border: 2px solid #2a2a2a; border-top-color: #00f0ff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.header-gradient { background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #0a0a0a 100%); border-bottom: 1px solid #2a2a2a; }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="header-gradient px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl font-bold bg-gradient-to-r from-neon-blue to-neon-purple bg-clip-text text-transparent">NOIRA</span>
+      <span class="text-noir-400 text-sm">Pipeline Dashboard</span>
+    </div>
+    <div class="flex items-center gap-4 text-sm">
+      <span id="last-update" class="text-noir-400">Cargando...</span>
+      <button onclick="refresh()" class="px-3 py-1.5 rounded-lg bg-noir-700 hover:bg-noir-600 transition text-noir-300 text-sm">↻</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+    <!-- Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="card glow-blue text-center">
+        <div class="text-noir-400 text-xs uppercase tracking-wider mb-1">Total</div>
+        <div id="stat-total" class="stat-value text-white">-</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-noir-400 text-xs uppercase tracking-wider mb-1">Subidos</div>
+        <div id="stat-uploaded" class="stat-value text-neon-green">-</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-noir-400 text-xs uppercase tracking-wider mb-1">Fallos</div>
+        <div id="stat-failed" class="stat-value text-red-400">-</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-noir-400 text-xs uppercase tracking-wider mb-1">Pendientes</div>
+        <div id="stat-pending" class="stat-value text-yellow-400">-</div>
+      </div>
+      <div class="card text-center">
+        <div class="text-noir-400 text-xs uppercase tracking-wider mb-1">Hoy</div>
+        <div id="stat-today" class="stat-value text-neon-blue">-</div>
+      </div>
+    </div>
+
+    <!-- Daily Activity -->
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Actividad Reciente</h2>
+      <div id="daily-chart" class="h-40 flex items-center justify-center text-noir-400 text-sm">
+        <span class="loading mr-2"></span> Cargando actividad...
+      </div>
+    </div>
+
+    <!-- Videos -->
+    <div class="card">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Vídeos</h2>
+        <div class="flex gap-2">
+          <select id="filter-status" onchange="filterVideos()" class="bg-noir-700 text-noir-300 text-sm rounded-lg px-3 py-1.5 border border-noir-600">
+            <option value="all">Todos</option>
+            <option value="uploaded">Subidos</option>
+            <option value="failed">Fallos</option>
+            <option value="pending">Pendientes</option>
+            <option value="queued">En cola</option>
+          </select>
+        </div>
+      </div>
+      <div id="videos-list" class="space-y-2">
+        <div class="flex items-center justify-center py-8 text-noir-400">
+          <span class="loading mr-2"></span> Cargando vídeos...
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const DB_URL = window.location.hostname === 'localhost' ? '' : '';
+const API = DB_URL ? `${DB_URL}/api` : 'https://raw.githubusercontent.com/noiramaster/noirafacts/main/data';
+
+async function api(url) {
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('Network error');
+    return await r.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+function formatDate(d) {
+  if (!d) return '-';
+  return new Date(d).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+}
+
+function statusBadge(status) {
+  const map = {
+    uploaded: '<span class="badge badge-success">Subido</span>',
+    failed: '<span class="badge badge-error">Falló</span>',
+    pending: '<span class="badge badge-pending">Pendiente</span>',
+    queued: '<span class="badge badge-queued">En cola</span>',
+    processing: '<span class="badge badge-queued">Procesando</span>',
+  };
+  return map[status] || `<span class="badge badge-pending">${status}</span>`;
+}
+
+function truncate(txt, n=40) {
+  if (!txt) return '';
+  return txt.length > n ? txt.slice(0, n) + '...' : txt;
+}
+
+function renderVideo(v) {
+  const id = v.id;
+  const shortcode = v.shortcode || '';
+  const title = v.title || shortcode;
+  const status = v.status || 'pending';
+  const uploaded = formatDate(v.processed_at || v.created_at);
+  const channel = v.channel_name || '-';
+  const ytUrl = v.youtube_url ? `<a href="${v.youtube_url}" target="_blank" class="text-neon-blue hover:underline text-xs">Abrir</a>` : '';
+
+  return `<div class="flex items-center justify-between py-2 px-3 rounded-lg hover:bg-noir-700/50 transition border border-noir-700/50">
+    <div class="flex-1 min-w-0">
+      <div class="font-medium text-sm truncate">${truncate(title, 50)}</div>
+      <div class="text-noir-400 text-xs mt-0.5">${channel} · ${uploaded} ${ytUrl}</div>
+    </div>
+    <div class="flex items-center gap-2 ml-3">
+      ${statusBadge(status)}
+    </div>
+  </div>`;
+}
+
+let allVideos = [];
+
+async function loadStats() {
+  const el = document.getElementById('stat-total');
+  el.textContent = '...';
+  // Since we can't directly query SQLite from browser, we'll use the GitHub raw data
+  // For now, show placeholder
+  el.textContent = '0';
+}
+
+async function loadVideos() {
+  const el = document.getElementById('videos-list');
+  el.innerHTML = '<div class="flex items-center justify-center py-8 text-noir-400"><span class="loading mr-2"></span> Cargando...</div>';
+
+  // Try to load from GitHub raw data
+  try {
+    // For Cloudflare Pages, we'd use D1/Supabase. For now, show empty state.
+    el.innerHTML = `<div class="text-center py-8 text-noir-400">
+      <div class="text-3xl mb-2">📊</div>
+      <p>Conecta Supabase o Cloudflare D1 para ver datos</p>
+      <p class="text-xs mt-2 text-noir-500">Los datos se sincronizan automáticamente tras cada ejecución</p>
+    </div>`;
+  } catch (e) {
+    el.innerHTML = '<div class="text-center py-8 text-noir-400">Error al cargar</div>';
+  }
+}
+
+async function loadChart() {
+  const el = document.getElementById('daily-chart');
+  // Placeholder for chart
+  el.innerHTML = `<div class="w-full flex items-end gap-2 h-full min-h-[120px]" id="chart-bars">
+    <div class="text-noir-400 text-sm w-full text-center py-8">Conecta una base de datos para ver estadísticas diarias</div>
+  </div>`;
+}
+
+function filterVideos() {
+  const status = document.getElementById('filter-status').value;
+  loadVideos(status);
+}
+
+async function refresh() {
+  document.getElementById('last-update').textContent = 'Actualizando...';
+  await Promise.all([loadStats(), loadVideos(), loadChart()]);
+  document.getElementById('last-update').textContent = new Date().toLocaleString('es-ES');
+}
+
+refresh();
+</script>
+</body>
+</html>

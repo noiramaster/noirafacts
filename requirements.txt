@@ -1,0 +1,11 @@
+instaloader>=4.11
+yt-dlp>=2024.12
+pytesseract>=0.3.13
+Pillow>=11.0
+deep-translator>=1.11
+google-auth>=2.37
+google-auth-oauthlib>=1.2
+google-api-python-client>=2.156
+yake>=0.4.8
+python-dotenv>=1.0
+requests>=2.32

@@ -1,0 +1,68 @@
+name: Noira Daily Pipeline
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force process (ignore limits)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  YT_CLIENT_ID: ${{ secrets.YT_CLIENT_ID }}
+  YT_CLIENT_SECRET: ${{ secrets.YT_CLIENT_SECRET }}
+  YT_REFRESH_TOKEN: ${{ secrets.YT_REFRESH_TOKEN }}
+  MAX_VIDEOS_PER_DAY: '6'
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq tesseract-ocr tesseract-ocr-ara \
+            tesseract-ocr-script-arab tesseract-ocr-spa ffmpeg
+
+      - name: Install Python dependencies
+        run: |
+          pip install --quiet --upgrade pip
+          pip install --quiet -r requirements.txt
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: ${{ runner.os }}-pipeline-${{ github.run_id }}
+          restore-keys: |
+            ${{ runner.os }}-pipeline-
+
+      - name: Run pipeline
+        run: python -m src.main
+
+      - name: Save cache
+        uses: actions/cache@v4
+        with:
+          path: data/
+          key: ${{ runner.os }}-pipeline-${{ github.run_id }}
+
+      - name: Upload logs if failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-logs
+          path: data/pipeline.db
+          retention-days: 7
