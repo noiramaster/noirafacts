@@ -1,4 +1,5 @@
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -19,15 +20,14 @@ RUN_MINUTE = int(os.getenv('RUN_MINUTE', '0'))
 YT_VIDEO_MAX_DURATION = int(os.getenv('YT_VIDEO_MAX_DURATION', '60'))
 YT_VIDEO_MIN_VIEWS = int(os.getenv('YT_VIDEO_MIN_VIEWS', '0'))
 
-YOUTUBE_CHANNELS = [
-    {'handle': '@Moaiud00', 'name': 'QuickInsights'},
-    {'handle': '@Amazing_Facts-i6q', 'name': 'Amazing Facts'},
-    {'id': 'UCWfgZhtXk4694tZyI8Y-gfQ', 'name': 'تعلم بإبداع'},
-    {'handle': '@modawanama3lomat', 'name': 'مدونة المعلومات'},
-    {'handle': '@hal_taalamo_ana', 'name': 'هل تعلم أن'},
-    {'handle': '@كل يوم معلومة', 'name': 'كل يوم معلومة'},
-    {'handle': '@Facts_with_Youssef', 'name': 'Facts with Youssef'},
-]
+YOUTUBE_CHANNELS = []
+channels_file = os.path.join(BASE_DIR, 'data', 'channels.json')
+if os.path.exists(channels_file):
+    try:
+        with open(channels_file) as f:
+            YOUTUBE_CHANNELS = json.load(f)
+    except:
+        pass
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
