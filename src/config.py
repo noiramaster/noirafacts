@@ -7,9 +7,6 @@ YT_CLIENT_ID = os.getenv('YT_CLIENT_ID', '')
 YT_CLIENT_SECRET = os.getenv('YT_CLIENT_SECRET', '')
 YT_REFRESH_TOKEN = os.getenv('YT_REFRESH_TOKEN', '')
 
-INSTAGRAM_USERNAME = os.getenv('INSTAGRAM_USERNAME', '')
-INSTAGRAM_PASSWORD = os.getenv('INSTAGRAM_PASSWORD', '')
-
 SUPABASE_URL = os.getenv('SUPABASE_URL', '')
 SUPABASE_KEY = os.getenv('SUPABASE_KEY', '')
 
@@ -19,19 +16,17 @@ TESSERACT_LANG = os.getenv('TESSERACT_LANG', 'ara+eng')
 RUN_HOUR = int(os.getenv('RUN_HOUR', '20'))
 RUN_MINUTE = int(os.getenv('RUN_MINUTE', '0'))
 
-INSTAGRAM_CHANNELS = [
-    'natubeac',
-    'space_aur',
-    'curiosamente',
-    'planetacurioso',
-    'sabiasque',
-    'datoscuriososoficial',
-    'curiosidad_mental',
-    'ciencia_curiosa',
-    'mundocurioso',
-    'naturaleza_curiosa',
-    'sabiasque_ok',
-    'elplanetacurioso',
+YT_VIDEO_MAX_DURATION = int(os.getenv('YT_VIDEO_MAX_DURATION', '60'))
+YT_VIDEO_MIN_VIEWS = int(os.getenv('YT_VIDEO_MIN_VIEWS', '0'))
+
+YOUTUBE_CHANNELS = [
+    {'handle': '@Moaiud00', 'name': 'QuickInsights'},
+    {'handle': '@Amazing_Facts-i6q', 'name': 'Amazing Facts'},
+    {'id': 'UCWfgZhtXk4694tZyI8Y-gfQ', 'name': 'تعلم بإبداع'},
+    {'handle': '@modawanama3lomat', 'name': 'مدونة المعلومات'},
+    {'handle': '@hal_taalamo_ana', 'name': 'هل تعلم أن'},
+    {'handle': '@كل يوم معلومة', 'name': 'كل يوم معلومة'},
+    {'handle': '@Facts_with_Youssef', 'name': 'Facts with Youssef'},
 ]
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
