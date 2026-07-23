@@ -21,7 +21,7 @@ YT_VIDEO_MAX_DURATION = int(os.getenv('YT_VIDEO_MAX_DURATION', '60'))
 YT_VIDEO_MIN_VIEWS = int(os.getenv('YT_VIDEO_MIN_VIEWS', '0'))
 
 YOUTUBE_CHANNELS = []
-channels_file = os.path.join(BASE_DIR, 'data', 'channels.json')
+channels_file = os.path.join(BASE_DIR, 'channels.json')
 if os.path.exists(channels_file):
     try:
         with open(channels_file) as f:
