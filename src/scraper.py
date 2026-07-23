@@ -5,7 +5,8 @@ import time
 import re
 from datetime import datetime
 from src.config import (
-    YOUTUBE_CHANNELS, TEMP_DIR, DATA_DIR, YT_VIDEO_MAX_DURATION
+    YOUTUBE_CHANNELS, TEMP_DIR, DATA_DIR, YT_VIDEO_MAX_DURATION,
+    YT_VIDEO_MIN_VIEWS
 )
 
 
@@ -46,6 +47,9 @@ def scrape_channel(channel, max_videos=30):
                 if duration == 0:
                     continue
                 if duration > YT_VIDEO_MAX_DURATION:
+                    continue
+                views = item.get('view_count', 0)
+                if views < YT_VIDEO_MIN_VIEWS:
                     continue
                 video_id = item.get('id', '')
                 if not video_id:

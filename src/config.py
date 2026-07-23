@@ -18,7 +18,9 @@ RUN_HOUR = int(os.getenv('RUN_HOUR', '20'))
 RUN_MINUTE = int(os.getenv('RUN_MINUTE', '0'))
 
 YT_VIDEO_MAX_DURATION = int(os.getenv('YT_VIDEO_MAX_DURATION', '60'))
-YT_VIDEO_MIN_VIEWS = int(os.getenv('YT_VIDEO_MIN_VIEWS', '0'))
+YT_VIDEO_MIN_VIEWS = int(os.getenv('YT_VIDEO_MIN_VIEWS', '50'))
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 YOUTUBE_CHANNELS = []
 channels_file = os.path.join(BASE_DIR, 'channels.json')
@@ -28,8 +30,6 @@ if os.path.exists(channels_file):
             YOUTUBE_CHANNELS = json.load(f)
     except:
         pass
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 DB_PATH = os.path.join(DATA_DIR, 'pipeline.db')
 VIDEOS_DIR = os.path.join(DATA_DIR, 'videos')
